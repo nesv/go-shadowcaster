@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	"github.com/golang/glog"
@@ -40,7 +39,7 @@ func HandleSetMovieDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	glog.Infof("Setting movies directory to %q", mdir)
-	go CreateIndex(mdir, IndexMovie)
+	go IndexDirectory(mdir, MovieIndex)
 
 	resp := JSONResponse{
 		Status: http.StatusOK,
@@ -52,20 +51,4 @@ func HandleSetMovieDir(w http.ResponseWriter, r *http.Request) {
 
 func HandleMovieStatus(w http.ResponseWriter, r *http.Request) {
 	WriteJSONError(w, "All filler, no Thriller.", http.StatusNotImplemented)
-}
-
-// Function IndexMovie...
-func IndexMovie(path string, info os.FileInfo, err error) error {
-	switch ext := filepath.Ext(info.Name()); ext {
-	case ".mp4", ".webm":
-		glog.V(1).Infof("Indexing movie %q", filepath.Base(path))
-
-	case "":
-		break
-
-	default:
-		glog.Warningf("Skipping unsupported movie type %q", ext)
-	}
-
-	return nil
 }
